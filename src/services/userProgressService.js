@@ -37,15 +37,33 @@ export async function isModuleCompleted(userId, courseId, moduleId) {
 
 // Fetch user's progress for all courses (needed by Dashboard and Profile)
 export async function getAllUserProgress(userId) {
-  const coursesSnapshot = await getDocs(collection(db, "userProgress", userId, "courses"));
-  let result = {};
+  const coursesSnapshot = await getDocs(
+    collection(db, "userProgress", userId, "courses")
+  );
+  const result = {};
+  const modulePromises = [];
+
   for (const courseDoc of coursesSnapshot.docs) {
     const courseId = courseDoc.id;
-    const modulesSnapshot = await getDocs(collection(db, "userProgress", userId, "courses", courseId, "modules"));
     result[courseId] = {};
-    for (const mod of modulesSnapshot.docs) {
-      result[courseId][mod.id] = mod.data();
-    }
+    const modulesRef = collection(
+      db,
+      "userProgress",
+      userId,
+      "courses",
+      courseId,
+      "modules"
+    );
+
+    const modulesPromise = getDocs(modulesRef).then(modulesSnapshot => {
+      for (const mod of modulesSnapshot.docs) {
+        result[courseId][mod.id] = mod.data();
+      }
+    });
+
+    modulePromises.push(modulesPromise);
   }
+
+  await Promise.all(modulePromises);
   return result;
 }
