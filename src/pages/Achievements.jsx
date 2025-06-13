@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/authContext";
 const AchievementPage = () => {
   const { user } = useAuth();
   const [achievementProgress, setAchievementProgress] = useState([]);
-  const [setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAchievements() {
@@ -20,7 +20,7 @@ const AchievementPage = () => {
       setLoading(false);
     }
     fetchAchievements();
-  }, [setLoading, user]);
+  }, [user]);
 
   // Split achievements into unlocked and locked
   const unlocked = achievementProgress.filter(a => a.unlocked);
