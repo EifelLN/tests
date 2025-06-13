@@ -28,7 +28,8 @@ export default function useProfileCheck() {
           );
           setIsComplete(allFilled);
         }
-      } catch {
+      } catch (err) {
+        console.error(err);
         setIsComplete(false);
       }
       setLoading(false);
