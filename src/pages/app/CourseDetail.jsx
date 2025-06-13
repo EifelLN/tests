@@ -8,6 +8,7 @@ import CommentsSection from "../../components/CommentsSection";
 import PersonalNotes from "../../components/PersonalNotes";
 import { useAuth } from "../../contexts/authContext";
 import { getCompletedModules } from "../../services/userProgressService";
+import { completeCourse } from "../../services/userService";
 
 // Helper to build sidebar
 const getSidebarStructure = (modules) => {
@@ -73,6 +74,14 @@ const CourseDetail = () => {
       try {
         const freshData = await getCompletedModules(user.uid, course.id);
         setCompletedMap(freshData);
+
+        const allCompleted = course.modules.every(
+          (mod) => freshData[mod.id]?.exerciseCompleted
+        );
+
+        if (allCompleted) {
+          await completeCourse(user.uid, course.id);
+        }
       } catch (error) {
         console.error("Error refreshing completion data:", error);
       }
