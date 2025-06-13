@@ -40,7 +40,7 @@ const Dashboard = () => {
 
   // Calculate course progress based on completed modules
   function getCourseProgress(course) {
-    const modules = Array.isArray(course.modules) ? course.modules : [];
+    const modules = course.modules || [];
     if (modules.length === 0) return 0;
 
     const progressForCourse = userProgress[course.id] || {};
