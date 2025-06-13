@@ -15,7 +15,7 @@ const CourseList = ({ courses, streak }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {courses.map((course) => (
           // <div key={course.id} className="flex flex-col content-center items-center w-full m-0 p-0">
-          <CourseCard course={course} />
+          <CourseCard key={course.id} course={course} />
         ))}
       </div>
     </section>
