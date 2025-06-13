@@ -14,9 +14,15 @@ export async function getCourseDetail(courseId) {
   const commentsSnap = await getDocs(collection(docRef, "comments"));
   const comments = commentsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
+  const courseData = docSnap.data();
+  const modules = Array.isArray(courseData.modules)
+    ? courseData.modules
+    : Object.values(courseData.modules || {});
+
   return {
     id: docSnap.id,
-    ...docSnap.data(),
-    comments, 
+    ...courseData,
+    modules,
+    comments,
   };
 }
