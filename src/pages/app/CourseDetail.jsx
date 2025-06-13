@@ -8,6 +8,7 @@ import CommentsSection from "../../components/CommentsSection";
 import PersonalNotes from "../../components/PersonalNotes";
 import { useAuth } from "../../contexts/authContext";
 import { getCompletedModules } from "../../services/userProgressService";
+import { completeCourse } from "../../services/userService";
 
 // Helper to build sidebar
 const getSidebarStructure = (modules) => {
@@ -67,12 +68,24 @@ const CourseDetail = () => {
         exerciseCompleted: true,
       }
     }));
-    
+
     // Optionally refresh from Firestore to ensure consistency
     if (user && course) {
       try {
         const freshData = await getCompletedModules(user.uid, course.id);
         setCompletedMap(freshData);
+
+        // Check if all modules are completed to award course XP
+        const allCompleted = course.modules.every((mod) =>
+          freshData[mod.id]?.exerciseCompleted
+        );
+        if (allCompleted) {
+          try {
+            await completeCourse(user.uid, course.id);
+          } catch (err) {
+            console.error("Error completing course:", err);
+          }
+        }
       } catch (error) {
         console.error("Error refreshing completion data:", error);
       }
