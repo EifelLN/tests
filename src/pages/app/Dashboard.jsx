@@ -38,33 +38,18 @@ const Dashboard = () => {
     fetchData();
   }, [user]);
 
-  // Calculate course progress - centralized logic
+  // Calculate course progress based on completed modules
   function getCourseProgress(course) {
-    const progressForCourse = userProgress[course.id];
-    if (!progressForCourse) return 0;
-
     const modules = Array.isArray(course.modules) ? course.modules : [];
     if (modules.length === 0) return 0;
 
-    const chapters = modules.reduce((acc, mod) => {
-      const chapter = mod.chapter ?? mod.chapterId ?? mod.chapterTitle ?? "";
-      if (!acc[chapter]) acc[chapter] = [];
-      acc[chapter].push(mod);
-      return acc;
-    }, {});
+    const progressForCourse = userProgress[course.id] || {};
 
-    const totalChapters = Object.keys(chapters).length;
-    if (totalChapters === 0) return 0;
+    const completedModules = modules.filter(
+      mod => progressForCourse[mod.id]?.exerciseCompleted
+    ).length;
 
-    let completedChapters = 0;
-    Object.values(chapters).forEach(mods => {
-      const allDone = mods.every(
-        m => progressForCourse[m.id]?.exerciseCompleted
-      );
-      if (allDone) completedChapters++;
-    });
-
-    return Math.round((completedChapters / totalChapters) * 100);
+    return Math.round((completedModules / modules.length) * 100);
   }
 
   const streak = 0;
