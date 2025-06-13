@@ -6,18 +6,15 @@ import { useAuth } from "../contexts/authContext";
 const AchievementPage = () => {
   const { user } = useAuth();
   const [achievementProgress, setAchievementProgress] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAchievements() {
-      setLoading(true);
       if (user) {
         const progress = await getUserAchievementProgress(user.uid);
         setAchievementProgress(progress);
       } else {
         setAchievementProgress([]);
       }
-      setLoading(false);
     }
     fetchAchievements();
   }, [user]);
@@ -64,13 +61,15 @@ const AchievementPage = () => {
                     bg-gradient-to-br from-[#6e74ff]/60 to-[#181a2b] border-[#6e74ff]
                     transition-all duration-200 hover:scale-105 hover:shadow-2xl"
                 >
-                  <div className="relative mb-2">
-                    <img
-                      src={ach.icon}
-                      alt={ach.title}
-                      className="w-14 h-14 object-contain"
-                    />
-                  </div>
+                  {ach.icon && (
+                    <div className="relative mb-2">
+                      <img
+                        src={ach.icon}
+                        alt={ach.title}
+                        className="w-14 h-14 object-contain"
+                      />
+                    </div>
+                  )}
                   <div className="text-base font-semibold mb-1 font-poppins text-white">
                     {ach.title}
                   </div>
@@ -100,18 +99,20 @@ const AchievementPage = () => {
                     bg-white/10 border-white/10 opacity-70 grayscale
                     transition-all duration-200 hover:scale-105 hover:shadow-2xl"
                 >
-                  <div className="relative mb-2">
-                    <img
-                      src={ach.icon}
-                      alt={ach.title}
-                      className="w-14 h-14 object-contain opacity-50"
-                    />
-                    <span className="absolute top-0 right-0 bg-[#232656] rounded-full p-1">
-                      <svg width="20" height="20" fill="#bfc6ff" viewBox="0 0 24 24">
-                        <path d="M17 11V7a5 5 0 0 0-10 0v4H5v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9h-2zm-8-4a3 3 0 0 1 6 0v4h-6V7zm8 13H7v-7h10v7z"/>
-                      </svg>
-                    </span>
-                  </div>
+                  {ach.icon && (
+                    <div className="relative mb-2">
+                      <img
+                        src={ach.icon}
+                        alt={ach.title}
+                        className="w-14 h-14 object-contain opacity-50"
+                      />
+                      <span className="absolute top-0 right-0 bg-[#232656] rounded-full p-1">
+                        <svg width="20" height="20" fill="#bfc6ff" viewBox="0 0 24 24">
+                          <path d="M17 11V7a5 5 0 0 0-10 0v4H5v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9h-2zm-8-4a3 3 0 0 1 6 0v4h-6V7zm8 13H7v-7h10v7z"/>
+                        </svg>
+                      </span>
+                    </div>
+                  )}
                   <div className="text-base font-semibold mb-1 font-poppins text-[#bfc6ff]">
                     {ach.title}
                   </div>
