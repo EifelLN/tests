@@ -71,7 +71,7 @@ const Register = () => {
         profileComplete: false,
         exp: 0,
         level: 1,
-        completedCourse:[],
+        completedCourses:[],
         achievements: {},
         streak: 0,
       });
