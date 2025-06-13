@@ -14,6 +14,18 @@ export async function markModuleCompleted(userId, courseId, moduleId) {
   );
 }
 
+// Mark only the lesson portion as completed
+export async function markLessonCompleted(userId, courseId, moduleId) {
+  await setDoc(
+    doc(db, "userProgress", userId, "courses", courseId, "modules", moduleId),
+    {
+      lessonCompleted: true,
+      completedAt: Date.now(),
+    },
+    { merge: true }
+  );
+}
+
 // Get all completed modules for a course for a user
 export async function getCompletedModules(userId, courseId) {
   const completed = {};

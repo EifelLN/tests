@@ -46,7 +46,9 @@ const Dashboard = () => {
     const progressForCourse = userProgress[course.id] || {};
 
     const completedModules = modules.filter(
-      mod => progressForCourse[mod.id]?.exerciseCompleted
+      mod =>
+        progressForCourse[mod.id]?.lessonCompleted ||
+        progressForCourse[mod.id]?.exerciseCompleted
     ).length;
 
     return Math.round((completedModules / modules.length) * 100);
