@@ -67,6 +67,9 @@ const AchievementPage = () => {
                         src={ach.icon}
                         alt={ach.title}
                         className="w-14 h-14 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.parentElement.style.display = "none";
+                        }}
                       />
                     </div>
                   )}
@@ -105,6 +108,9 @@ const AchievementPage = () => {
                         src={ach.icon}
                         alt={ach.title}
                         className="w-14 h-14 object-contain opacity-50"
+                        onError={(e) => {
+                          e.currentTarget.parentElement.style.display = "none";
+                        }}
                       />
                       <span className="absolute top-0 right-0 bg-[#232656] rounded-full p-1">
                         <svg width="20" height="20" fill="#bfc6ff" viewBox="0 0 24 24">
