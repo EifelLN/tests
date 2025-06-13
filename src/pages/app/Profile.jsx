@@ -50,8 +50,9 @@ const Profile = () => {
           });
           setCompletedCourses(count);
         }
-      } catch {
-        setError("Failed to load profile.");
+        } catch (err) {
+          console.error(err);
+          setError("Failed to load profile.");
       } finally {
         setLoading(false);
       }
@@ -78,7 +79,8 @@ const Profile = () => {
       setUser(updatedProfile);
       setForm(updatedProfile);
       setDob(updatedProfile && updatedProfile.dob ? new Date(updatedProfile.dob) : null);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Failed to update profile.");
     } finally {
       setLoading(false);

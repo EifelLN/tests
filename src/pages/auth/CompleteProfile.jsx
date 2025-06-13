@@ -40,8 +40,9 @@ const CompleteProfile = () => {
             return; 
           }
         }
-      } catch {
-        // Fail silently, let user fill the form
+        } catch (err) {
+          console.error(err);
+          // Fail silently, let user fill the form
       }
       setLoading(false);
     }
@@ -77,7 +78,8 @@ const CompleteProfile = () => {
         ...updatedForm,
       });
       navigate("/dashboard");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Failed to update profile.");
     }
     setSaving(false);
