@@ -5,16 +5,11 @@ export async function getCourses() {
   const snapshot = await getDocs(collection(db, "courses"));
   const courses = [];
   for (const docSnap of snapshot.docs) {
-    const modulesSnap = await getDocs(
-      collection(db, "courses", docSnap.id, "modules")
-    );
-    const modules = modulesSnap.docs.map(mod => ({
-      id: mod.id,
-      ...mod.data(),
-    }));
+    const courseData = docSnap.data();
+    const modules = courseData.modules || [];
     courses.push({
       id: docSnap.id,
-      ...docSnap.data(),
+      ...courseData,
       modules,
       completed: false,
     });
