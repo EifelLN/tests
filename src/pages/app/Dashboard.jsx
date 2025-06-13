@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Navbar from "../../components/Navbar";
 import SearchBar from "../../components/SearchBar";
 import DailyMissions from "../../components/DailyMissions";
@@ -55,10 +55,14 @@ const Dashboard = () => {
   const streak = 0;
 
   // Add progress to each course
-  const coursesWithProgress = courses.map(course => ({
-    ...course,
-    progress: getCourseProgress(course)
-  }));
+  const coursesWithProgress = useMemo(
+    () =>
+      courses.map(course => ({
+        ...course,
+        progress: getCourseProgress(course)
+      })),
+    [courses, userProgress]
+  );
 
   if (loading) {
     return <div className="text-white text-center pt-32">Loading dashboard...</div>;
