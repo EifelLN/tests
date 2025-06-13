@@ -31,7 +31,12 @@ const Courses = () => {
     const progressForCourse = userProgress[course.id] || {};
     const modules = course.modules || [];
     const completed =
-      modules.length > 0 && modules.every(mod => progressForCourse[mod.id]?.exerciseCompleted);
+      modules.length > 0 &&
+      modules.every(
+        mod =>
+          progressForCourse[mod.id]?.lessonCompleted ||
+          progressForCourse[mod.id]?.exerciseCompleted
+      );
     return { ...course, completed };
   });
 

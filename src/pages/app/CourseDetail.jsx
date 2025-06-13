@@ -7,7 +7,10 @@ import ExerciseSection from "../../components/ExerciseSection";
 import CommentsSection from "../../components/CommentsSection";
 import PersonalNotes from "../../components/PersonalNotes";
 import { useAuth } from "../../contexts/authContext";
-import { getCompletedModules } from "../../services/userProgressService";
+import {
+  getCompletedModules,
+  markLessonCompleted,
+} from "../../services/userProgressService";
 import { completeCourse } from "../../services/userService";
 
 // Helper to build sidebar
@@ -76,7 +79,9 @@ const CourseDetail = () => {
         setCompletedMap(freshData);
 
         const allCompleted = course.modules.every(
-          (mod) => freshData[mod.id]?.exerciseCompleted
+          (mod) =>
+            freshData[mod.id]?.lessonCompleted ||
+            freshData[mod.id]?.exerciseCompleted
         );
 
         if (allCompleted) {
@@ -84,6 +89,25 @@ const CourseDetail = () => {
         }
       } catch (error) {
         console.error("Error refreshing completion data:", error);
+      }
+    }
+  };
+
+  // Mark only the lesson as completed
+  const handleLessonComplete = async (moduleId) => {
+    setCompletedMap((prev) => ({
+      ...prev,
+      [moduleId]: {
+        ...(prev[moduleId] || {}),
+        lessonCompleted: true,
+      },
+    }));
+
+    if (user && course) {
+      try {
+        await markLessonCompleted(user.uid, course.id, moduleId);
+      } catch (error) {
+        console.error("Error marking lesson completed:", error);
       }
     }
   };
@@ -125,10 +149,11 @@ const CourseDetail = () => {
                       >
                         <span className="flex justify-between items-center">
                           {item.label}
-                          {/* Show checkmark for both lesson and exercise if exercise is completed */}
+                          {/* Show checkmark if lesson or exercise has been completed */}
                           {completedMap &&
                             completedMap[chapter.module.id] &&
-                            completedMap[chapter.module.id].exerciseCompleted && (
+                            (completedMap[chapter.module.id].lessonCompleted ||
+                              completedMap[chapter.module.id].exerciseCompleted) && (
                               <span className="text-green-400 font-bold">✔️</span>
                           )}
                         </span>
@@ -147,7 +172,23 @@ const CourseDetail = () => {
           <div className="flex-1 flex flex-col gap-6">
             <div className="bg-white/5 rounded-lg p-6 min-h-[240px] max-w-3xl w-full mx-auto">
               {selectedType === "lesson" ? (
-                <LessonContent content={selectedModule.content} />
+                <>
+                  <LessonContent content={selectedModule.content} />
+                  <div className="mt-4">
+                    {completedMap[selectedModule.id]?.lessonCompleted ? (
+                      <div className="text-green-400 font-semibold">
+                        Lesson Completed ✔️
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleLessonComplete(selectedModule.id)}
+                        className="bg-[#6e74ff] px-4 py-2 rounded text-white font-bold hover:bg-[#3131BD]"
+                      >
+                        Mark Lesson Complete
+                      </button>
+                    )}
+                  </div>
+                </>
               ) : (
                 <ExerciseSection
                   exercise={selectedModule.exercise}
