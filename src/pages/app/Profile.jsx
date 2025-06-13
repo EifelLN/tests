@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
+import ProfileHeader from "../../components/ProfileHeader";
+import ProfileStats from "../../components/ProfileStats";
 import { getUserProfile, updateUserProfile } from "../../services/userService";
 import { getCourses } from "../../services/courseService";
 import { getAllUserProgress } from "../../services/userProgressService";
@@ -92,6 +94,7 @@ const Profile = () => {
 
   const level = user.level || 1;
   const streak = user.streak || 0;
+  const name = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
 
   return (
     <div className="min-h-screen bg-[#181a2b]">
@@ -242,18 +245,8 @@ const Profile = () => {
           </div>
           {/* RIGHT: User Info Card */}
           <div className="bg-[#362e7c] rounded-2xl px-10 py-8 w-[320px] max-w-full shadow-xl flex flex-col justify-center items-center">
-            <div className="bg-white/20 rounded-full h-20 w-20 flex items-center justify-center text-5xl text-white font-bold mb-2">
-              <span role="img" aria-label="user">👤</span>
-            </div>
-            <div className="text-white/70 text-center mb-4">Level {level}</div>
-            <div className="w-full flex flex-col gap-3 mt-1 items-center">
-              <div className="bg-[#6e74ff] text-white text-base rounded p-3 font-semibold w-full text-center">
-                Longest Streak: <span className="underline">{streak}x</span>
-              </div>
-              <div className="bg-[#6e74ff] text-white text-base rounded p-3 font-semibold w-full text-center">
-                Completed Course: <span className="font-bold">{completedCourses} Courses</span>
-              </div>
-            </div>
+            <ProfileHeader name={name} level={level} />
+            <ProfileStats longestStreak={streak} completedCourses={completedCourses} />
           </div>
         </div>
       </div>
