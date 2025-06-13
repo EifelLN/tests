@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const CourseCard = ({ course = {} }) => {
-  const progress = course.progress || 0;
 
   return (
     <Link to={`/courses/${course.id || ""}`}>
@@ -22,15 +21,7 @@ const CourseCard = ({ course = {} }) => {
         <div className="text-white/80 text-sm mb-2">
           {course.description || ""}
         </div>
-        <div className="w-full bg-white/20 rounded-full h-3 mb-2">
-          <div
-            className="bg-[#6e74ff] h-3 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="text-right text-white text-xs">
-          {progress}% complete
-        </div>
+        {/* Progress bar removed */}
       </div>
     </Link>
   );
