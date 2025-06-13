@@ -10,7 +10,7 @@ const ProfileStats = ({ longestStreak, completedCourses }) => {
       </div>
       <div>
         <span className="font-semibold">Completed {courseLabel}: </span>
-        <span className="underline text-[#bfc6ff]">{completedCourses} {courseLabel}</span>
+        <span className="underline text-[#bfc6ff]">{completedCourses}</span>
       </div>
     </div>
   );

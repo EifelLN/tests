@@ -30,8 +30,9 @@ const Profile = () => {
         setUser(profile);
         setForm(profile);
         setDob(profile && profile.dob ? new Date(profile.dob) : null);
+        setCompletedCourses(profile?.completedCourses?.length || 0);
 
-        if (authUser) {
+        if (authUser && (!profile?.completedCourses || profile.completedCourses.length === 0)) {
           const allCourses = await getCourses();
           const allProgress = await getAllUserProgress(authUser.uid);
 
@@ -39,13 +40,13 @@ const Profile = () => {
           allCourses.forEach(course => {
             const modules = course.modules || [];
             const progress = allProgress[course.id] || {};
-          const allModulesCompleted =
-            modules.length > 0 &&
-            modules.every(
-              (mod) =>
-                progress[mod.id]?.lessonCompleted ||
-                progress[mod.id]?.exerciseCompleted
-            );
+            const allModulesCompleted =
+              modules.length > 0 &&
+              modules.every(
+                (mod) =>
+                  progress[mod.id]?.lessonCompleted ||
+                  progress[mod.id]?.exerciseCompleted
+              );
             if (allModulesCompleted) count++;
           });
           setCompletedCourses(count);
