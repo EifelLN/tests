@@ -62,16 +62,16 @@ const ExerciseSection = ({ exercise, courseId, moduleId, onModuleComplete }) => 
             {choices.map((choice, idx) => (
               <label
                 key={idx}
-                className={`px-4 py-3 rounded cursor-pointer border transition-all ${
-                  Number(userChoice) === idx
-                    ? "bg-[#6e74ff] text-white border-[#6e74ff]"
-                    : "bg-white/10 text-white border-white/20 hover:bg-white/20"
-                } ${completed ? "opacity-60 pointer-events-none" : ""}`}
+                  className={`px-4 py-3 rounded cursor-pointer border transition-all ${
+                    userChoice === idx
+                      ? "bg-[#6e74ff] text-white border-[#6e74ff]"
+                      : "bg-white/10 text-white border-white/20 hover:bg-white/20"
+                  } ${completed ? "opacity-60 pointer-events-none" : ""}`}
               >
                 <input
                   type="radio"
                   value={idx}
-                  checked={Number(userChoice) === idx}
+                  checked={userChoice === idx}
                   onChange={() => {
                     if (!completed) {
                       setUserChoice(idx);
