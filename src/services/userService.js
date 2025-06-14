@@ -16,7 +16,10 @@ export async function updateUserProfile(data) {
   const user = auth.currentUser;
   if (!user) throw new Error("No user logged in");
   const docRef = doc(db, "users", user.uid);
-  await updateDoc(docRef, data);
+
+  // Prevent external modification of the profileComplete flag
+  const { profileComplete, ...updateData } = data;
+  await updateDoc(docRef, updateData);
 
   const updatedSnap = await getDoc(docRef);
   if (updatedSnap.exists()) {
