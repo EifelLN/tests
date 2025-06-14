@@ -85,7 +85,13 @@ const CourseDetail = () => {
         );
 
         if (allCompleted) {
-          await completeCourse(user.uid, course.id);
+          const result = await completeCourse(user.uid, course.id);
+          if (result?.newAchievements?.length) {
+            console.log("Unlocked achievements", result.newAchievements);
+          }
+          // Refresh completion data in case achievements modify user stats
+          const updated = await getCompletedModules(user.uid, course.id);
+          setCompletedMap(updated);
         }
       } catch (error) {
         console.error("Error refreshing completion data:", error);
