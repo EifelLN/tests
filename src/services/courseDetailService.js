@@ -16,8 +16,11 @@ export async function getCourseDetail(courseId) {
 
   const courseData = docSnap.data();
   const modules = Array.isArray(courseData.modules)
-    ? courseData.modules
-    : Object.values(courseData.modules || {});
+    ? courseData.modules.map((m, idx) => ({ id: m.id || String(idx), ...m }))
+    : Object.entries(courseData.modules || {}).map(([key, m]) => ({
+        id: m.id || key,
+        ...m,
+      }));
 
   return {
     id: docSnap.id,

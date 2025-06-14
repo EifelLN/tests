@@ -7,8 +7,11 @@ export async function getCourses() {
   for (const docSnap of snapshot.docs) {
     const courseData = docSnap.data();
     const modules = Array.isArray(courseData.modules)
-      ? courseData.modules
-      : Object.values(courseData.modules || {});
+      ? courseData.modules.map((m, idx) => ({ id: m.id || String(idx), ...m }))
+      : Object.entries(courseData.modules || {}).map(([key, m]) => ({
+          id: m.id || key,
+          ...m,
+        }));
     courses.push({
       id: docSnap.id,
       ...courseData,
