@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { getUserProfile, hasAchievement, unlockAchievement } from "./userService";
 
 // Get all achievements
@@ -54,6 +54,21 @@ export async function getUserAchievementProgress(userId) {
     console.error("Error getting achievement progress:", error);
     throw error;
   }
+}
+
+// Subscribe to real-time updates of a user's achievement progress
+export function subscribeToUserAchievementProgress(userId, callback) {
+  const userRef = doc(db, "users", userId);
+  return onSnapshot(userRef, async snap => {
+    const userAchievements = snap.exists() ? snap.data().achievements || {} : {};
+    const allAchievements = await getAllAchievements();
+    const progress = allAchievements.map(ach => ({
+      ...ach,
+      unlocked: ach.id in userAchievements,
+      unlockedAt: userAchievements[ach.id]?.unlockedAt || null
+    }));
+    callback(progress);
+  });
 }
 
 // Get only unlocked achievements with details
