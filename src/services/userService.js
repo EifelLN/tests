@@ -4,10 +4,10 @@ import { checkCourseAchievements } from "./achievementService";
 import { getCourseDetail } from "./courseDetailService";
 import { getCompletedModules } from "./userProgressService";
 
-export async function getUserProfile() {
-  const user = auth.currentUser;
-  if (!user) return null;
-  const docRef = doc(db, "users", user.uid);
+export async function getUserProfile(uid) {
+  const userId = uid || auth.currentUser?.uid;
+  if (!userId) return null;
+  const docRef = doc(db, "users", userId);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     return docSnap.data();
@@ -21,7 +21,7 @@ export async function updateUserProfile(data) {
   const docRef = doc(db, "users", user.uid);
 
   // Prevent external modification of the profileComplete flag
-  const { profileComplete, ...updateData } = data;
+  const { profileComplete: _profileComplete, ...updateData } = data;
   await updateDoc(docRef, updateData);
 
   const updatedSnap = await getDoc(docRef);
