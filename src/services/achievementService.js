@@ -1,6 +1,6 @@
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
-import { getUserProfile, hasAchievement } from "./userService";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { getUserProfile, hasAchievement, unlockAchievement } from "./userService";
 
 // Get all achievements
 export async function getAllAchievements() {
@@ -11,22 +11,6 @@ export async function getAllAchievements() {
   }));
 }
 
-// Get achievements user has unlocked
-export async function getUserAchievements(userId) {
-  const userAchRef = collection(db, "users", userId, "achievements");
-  const snapshot = await getDocs(userAchRef);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-}
-
-// Unlock achievement for user
-export async function unlockAchievement(userId, achievementId) {
-  await setDoc(doc(db, "users", userId, "achievements", achievementId), {
-    unlockedAt: Date.now()
-  });
-}
 
 export async function getAchievementDetails(achievementId) {
   try {
