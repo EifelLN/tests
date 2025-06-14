@@ -34,7 +34,7 @@ const Courses = () => {
       modules.length > 0 &&
       modules.every(
         mod =>
-          progressForCourse[mod.id]?.lessonCompleted ||
+          progressForCourse[mod.id]?.lessonCompleted &&
           progressForCourse[mod.id]?.exerciseCompleted
       );
     return { ...course, completed };

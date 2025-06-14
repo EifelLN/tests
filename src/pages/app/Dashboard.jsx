@@ -47,7 +47,7 @@ const Dashboard = () => {
 
     const completedModules = modules.filter(
       mod =>
-        progressForCourse[mod.id]?.lessonCompleted ||
+        progressForCourse[mod.id]?.lessonCompleted &&
         progressForCourse[mod.id]?.exerciseCompleted
     ).length;
 

@@ -126,7 +126,7 @@ export async function completeCourse(userId, courseId, expReward = 50) {
     const progress = await getCompletedModules(userId, courseId);
     const allCompleted = course.modules.every(
       (mod) =>
-        progress[mod.id]?.lessonCompleted ||
+        progress[mod.id]?.lessonCompleted &&
         progress[mod.id]?.exerciseCompleted
     );
 
