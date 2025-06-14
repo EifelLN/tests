@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { subscribeToUserAchievementProgress } from "../services/achievementService";
+import {
+  getUserAchievementProgress,
+  subscribeToUserAchievementProgress,
+} from "../services/achievementService";
 import { useAuth } from "../contexts/authContext";
 
 const AchievementPage = () => {
@@ -13,8 +16,21 @@ const AchievementPage = () => {
       return;
     }
 
-    const unsubscribe = subscribeToUserAchievementProgress(user.uid, setAchievementProgress);
-    return unsubscribe;
+    let unsubscribe;
+    const fetchAndSubscribe = async () => {
+      try {
+        const progress = await getUserAchievementProgress(user.uid);
+        setAchievementProgress(progress);
+      } catch (error) {
+        console.error("Error fetching initial achievement progress:", error);
+      }
+      unsubscribe = subscribeToUserAchievementProgress(user.uid, setAchievementProgress);
+    };
+
+    fetchAndSubscribe();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user]);
 
   // Split achievements into unlocked and locked
