@@ -76,13 +76,15 @@ const CompleteProfile = () => {
     try {
       await updateUserProfile({
         ...updatedForm,
+        profileComplete: true,
       });
+      setSaving(false);
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
       setError("Failed to update profile.");
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   return (
