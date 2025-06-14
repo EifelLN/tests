@@ -1,6 +1,22 @@
 import { db } from "./firebase";
 import { collection, getDocs, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
 import { getUserProfile, hasAchievement, unlockAchievement } from "./userService";
+import { ACHIEVEMENT_IDS } from "../constants/achievementIds";
+
+const NAME_TO_ID = {
+  "profile-complete": ACHIEVEMENT_IDS.PROFILE_COMPLETE,
+  "first-lesson": ACHIEVEMENT_IDS.FIRST_LESSON,
+  "first-course": ACHIEVEMENT_IDS.FIRST_COURSE,
+  "course-master": ACHIEVEMENT_IDS.COURSE_MASTER,
+  "course-legend": ACHIEVEMENT_IDS.COURSE_LEGEND,
+  "streak-3": ACHIEVEMENT_IDS.STREAK_3,
+  "streak-7": ACHIEVEMENT_IDS.STREAK_7,
+  "streak-30": ACHIEVEMENT_IDS.STREAK_30,
+  "level-5": ACHIEVEMENT_IDS.LEVEL_5,
+  "level-10": ACHIEVEMENT_IDS.LEVEL_10,
+};
+
+const normalizeId = (id) => NAME_TO_ID[id] || id;
 
 // Get all achievements
 export async function getAllAchievements() {
@@ -18,8 +34,9 @@ export async function getAllAchievements() {
 
 export async function getAchievementDetails(achievementId) {
   try {
+    const normalized = normalizeId(achievementId);
     // Try to fetch by the stored achievement id field
-    const q = query(collection(db, "achievements"), where("id", "==", achievementId));
+    const q = query(collection(db, "achievements"), where("id", "==", normalized));
     const querySnap = await getDocs(q);
 
     if (!querySnap.empty) {
@@ -28,11 +45,11 @@ export async function getAchievementDetails(achievementId) {
     }
 
     // Fallback to fetching by document id
-    const achievementRef = doc(db, "achievements", achievementId);
+    const achievementRef = doc(db, "achievements", normalized);
     const achievementSnap = await getDoc(achievementRef);
 
     if (achievementSnap.exists()) {
-      return { firebaseId: achievementId, ...achievementSnap.data() };
+      return { firebaseId: normalized, ...achievementSnap.data() };
     }
     return null;
   } catch (error) {
@@ -120,8 +137,8 @@ export async function checkLessonAchievements(userId) {
   
   try {
     // Check "Complete your first lesson" achievement
-    const details = await getAchievementDetails("first-lesson");
-    const achId = details?.id || "first-lesson";
+    const details = await getAchievementDetails(ACHIEVEMENT_IDS.FIRST_LESSON);
+    const achId = details?.id || ACHIEVEMENT_IDS.FIRST_LESSON;
     const hasFirstLesson = await hasAchievement(userId, achId);
     if (!hasFirstLesson) {
       const result = await unlockAchievement(userId, achId);
@@ -148,8 +165,8 @@ export async function checkCourseAchievements(userId, completedCount) {
   try {
     // First course achievement
     if (completedCount >= 1) {
-      const firstCourseDetails = await getAchievementDetails("first-course");
-      const firstCourseId = firstCourseDetails?.id || "first-course";
+      const firstCourseDetails = await getAchievementDetails(ACHIEVEMENT_IDS.FIRST_COURSE);
+      const firstCourseId = firstCourseDetails?.id || ACHIEVEMENT_IDS.FIRST_COURSE;
       const hasFirstCourse = await hasAchievement(userId, firstCourseId);
       if (!hasFirstCourse) {
         const result = await unlockAchievement(userId, firstCourseId);
@@ -167,8 +184,8 @@ export async function checkCourseAchievements(userId, completedCount) {
 
     // Course master achievement (5 courses)
     if (completedCount >= 5) {
-      const masterDetails = await getAchievementDetails("course-master");
-      const masterId = masterDetails?.id || "course-master";
+      const masterDetails = await getAchievementDetails(ACHIEVEMENT_IDS.COURSE_MASTER);
+      const masterId = masterDetails?.id || ACHIEVEMENT_IDS.COURSE_MASTER;
       const hasCourseMaster = await hasAchievement(userId, masterId);
       if (!hasCourseMaster) {
         const result = await unlockAchievement(userId, masterId);
@@ -185,8 +202,8 @@ export async function checkCourseAchievements(userId, completedCount) {
 
     // Course legend achievement (10 courses)
     if (completedCount >= 10) {
-      const legendDetails = await getAchievementDetails("course-legend");
-      const legendId = legendDetails?.id || "course-legend";
+      const legendDetails = await getAchievementDetails(ACHIEVEMENT_IDS.COURSE_LEGEND);
+      const legendId = legendDetails?.id || ACHIEVEMENT_IDS.COURSE_LEGEND;
       const hasCourseLegend = await hasAchievement(userId, legendId);
       if (!hasCourseLegend) {
         const result = await unlockAchievement(userId, legendId);
@@ -214,8 +231,8 @@ export async function checkStreakAchievements(userId, streakCount) {
   try {
     // 3-day streak
     if (streakCount >= 3) {
-      const streak3Details = await getAchievementDetails("streak-3");
-      const streak3Id = streak3Details?.id || "streak-3";
+      const streak3Details = await getAchievementDetails(ACHIEVEMENT_IDS.STREAK_3);
+      const streak3Id = streak3Details?.id || ACHIEVEMENT_IDS.STREAK_3;
       const hasStreak3 = await hasAchievement(userId, streak3Id);
       if (!hasStreak3) {
         const result = await unlockAchievement(userId, streak3Id);
@@ -234,8 +251,8 @@ export async function checkStreakAchievements(userId, streakCount) {
 
     // 7-day streak
     if (streakCount >= 7) {
-      const streak7Details = await getAchievementDetails("streak-7");
-      const streak7Id = streak7Details?.id || "streak-7";
+      const streak7Details = await getAchievementDetails(ACHIEVEMENT_IDS.STREAK_7);
+      const streak7Id = streak7Details?.id || ACHIEVEMENT_IDS.STREAK_7;
       const hasStreak7 = await hasAchievement(userId, streak7Id);
       if (!hasStreak7) {
         const result = await unlockAchievement(userId, streak7Id);
@@ -254,8 +271,8 @@ export async function checkStreakAchievements(userId, streakCount) {
 
     // 30-day streak
     if (streakCount >= 30) {
-      const streak30Details = await getAchievementDetails("streak-30");
-      const streak30Id = streak30Details?.id || "streak-30";
+      const streak30Details = await getAchievementDetails(ACHIEVEMENT_IDS.STREAK_30);
+      const streak30Id = streak30Details?.id || ACHIEVEMENT_IDS.STREAK_30;
       const hasStreak30 = await hasAchievement(userId, streak30Id);
       if (!hasStreak30) {
         const result = await unlockAchievement(userId, streak30Id);
@@ -285,8 +302,8 @@ export async function checkLevelAchievements(userId, userLevel) {
   try {
     // Level 5 achievement
     if (userLevel >= 5) {
-      const level5Details = await getAchievementDetails("level-5");
-      const level5Id = level5Details?.id || "level-5";
+      const level5Details = await getAchievementDetails(ACHIEVEMENT_IDS.LEVEL_5);
+      const level5Id = level5Details?.id || ACHIEVEMENT_IDS.LEVEL_5;
       const hasLevel5 = await hasAchievement(userId, level5Id);
       if (!hasLevel5) {
         const result = await unlockAchievement(userId, level5Id);
@@ -303,8 +320,8 @@ export async function checkLevelAchievements(userId, userLevel) {
 
     // Level 10 achievement
     if (userLevel >= 10) {
-      const level10Details = await getAchievementDetails("level-10");
-      const level10Id = level10Details?.id || "level-10";
+      const level10Details = await getAchievementDetails(ACHIEVEMENT_IDS.LEVEL_10);
+      const level10Id = level10Details?.id || ACHIEVEMENT_IDS.LEVEL_10;
       const hasLevel10 = await hasAchievement(userId, level10Id);
       if (!hasLevel10) {
         const result = await unlockAchievement(userId, level10Id);
@@ -330,8 +347,8 @@ export async function checkProfileAchievement(userId) {
   const results = [];
   
   try {
-    const details = await getAchievementDetails("profile-complete");
-    const achId = details?.id || "profile-complete";
+    const details = await getAchievementDetails(ACHIEVEMENT_IDS.PROFILE_COMPLETE);
+    const achId = details?.id || ACHIEVEMENT_IDS.PROFILE_COMPLETE;
     const hasProfileComplete = await hasAchievement(userId, achId);
     if (!hasProfileComplete) {
       const result = await unlockAchievement(userId, achId);
