@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { getUserAchievementProgress } from "../services/achievementService";
+import { subscribeToUserAchievementProgress } from "../services/achievementService";
 import { useAuth } from "../contexts/authContext";
 
 const AchievementPage = () => {
@@ -8,15 +8,13 @@ const AchievementPage = () => {
   const [achievementProgress, setAchievementProgress] = useState([]);
 
   useEffect(() => {
-    async function fetchAchievements() {
-      if (user) {
-        const progress = await getUserAchievementProgress(user.uid);
-        setAchievementProgress(progress);
-      } else {
-        setAchievementProgress([]);
-      }
+    if (!user) {
+      setAchievementProgress([]);
+      return;
     }
-    fetchAchievements();
+
+    const unsubscribe = subscribeToUserAchievementProgress(user.uid, setAchievementProgress);
+    return unsubscribe;
   }, [user]);
 
   // Split achievements into unlocked and locked
