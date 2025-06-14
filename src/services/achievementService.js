@@ -40,12 +40,10 @@ async function getUserAchievementsMap(userId) {
 // Get user's achievement progress (all achievements with unlock status)
 export async function getUserAchievementProgress(userId) {
   try {
-    const [allAchievements, userData] = await Promise.all([
+    const [allAchievements, userAchievements] = await Promise.all([
       getAllAchievements(),
       getUserAchievementsMap(userId)
     ]);
-
-    const userAchievements = userData?.achievements || {};
 
     return allAchievements.map(achievement => ({
       ...achievement,
