@@ -17,6 +17,24 @@ export async function updateUserProfile(data) {
   if (!user) throw new Error("No user logged in");
   const docRef = doc(db, "users", user.uid);
   await updateDoc(docRef, data);
+
+  const updatedSnap = await getDoc(docRef);
+  if (updatedSnap.exists()) {
+    const profile = updatedSnap.data();
+    const requiredFields = [
+      profile.firstName,
+      profile.lastName,
+      profile.country,
+      profile.dob,
+      profile.institution
+    ];
+
+    const isComplete = requiredFields.every(Boolean);
+    if (isComplete && !profile.profileComplete) {
+      await updateDoc(docRef, { profileComplete: true });
+      await unlockAchievement(user.uid, "profile-complete");
+    }
+  }
 }
 
 // Calculate level from experience
