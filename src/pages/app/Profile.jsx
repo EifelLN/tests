@@ -73,7 +73,7 @@ const Profile = () => {
     setLoading(true);
     setError(""); 
     try {
-      const { profileComplete, ...profileData } = form;
+      const { profileComplete: _profileComplete, ...profileData } = form;
       await updateUserProfile({
         ...profileData,
         dob: dob ? dob.toISOString().split("T")[0] : "",
