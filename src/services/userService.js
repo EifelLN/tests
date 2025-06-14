@@ -1,6 +1,8 @@
 import { auth, db } from "./firebase";
 import { doc, getDoc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { checkCourseAchievements } from "./achievementService";
+import { getCourseDetail } from "./courseDetailService";
+import { getCompletedModules } from "./userProgressService";
 
 export async function getUserProfile() {
   const user = auth.currentUser;
@@ -118,6 +120,18 @@ export async function completeCourse(userId, courseId, expReward = 50) {
   try {
     if (await isCourseCompleted(userId, courseId)) {
       return { alreadyCompleted: true, newAchievements: [] };
+    }
+
+    const course = await getCourseDetail(courseId);
+    const progress = await getCompletedModules(userId, courseId);
+    const allCompleted = course.modules.every(
+      (mod) =>
+        progress[mod.id]?.lessonCompleted ||
+        progress[mod.id]?.exerciseCompleted
+    );
+
+    if (!allCompleted) {
+      return { alreadyCompleted: false, newAchievements: [] };
     }
 
     const userRef = doc(db, "users", userId);
