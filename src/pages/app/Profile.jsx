@@ -42,13 +42,13 @@ const Profile = () => {
           allCourses.forEach(course => {
             const modules = course.modules || [];
             const progress = allProgress[course.id] || {};
-            const allModulesCompleted =
-              modules.length > 0 &&
-              modules.every(
-                (mod) =>
-                  progress[mod.id]?.lessonCompleted ||
-                  progress[mod.id]?.exerciseCompleted
-              );
+              const allModulesCompleted =
+                modules.length > 0 &&
+                modules.every(
+                  (mod) =>
+                    progress[mod.id]?.lessonCompleted &&
+                    progress[mod.id]?.exerciseCompleted
+                );
             if (allModulesCompleted) count++;
           });
           setCompletedCourses(count);

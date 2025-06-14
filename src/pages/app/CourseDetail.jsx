@@ -80,7 +80,7 @@ const CourseDetail = () => {
 
         const allCompleted = course.modules.every(
           (mod) =>
-            freshData[mod.id]?.lessonCompleted ||
+            freshData[mod.id]?.lessonCompleted &&
             freshData[mod.id]?.exerciseCompleted
         );
 
@@ -158,7 +158,7 @@ const CourseDetail = () => {
                           {/* Show checkmark if lesson or exercise has been completed */}
                           {completedMap &&
                             completedMap[chapter.module.id] &&
-                            (completedMap[chapter.module.id].lessonCompleted ||
+                            (completedMap[chapter.module.id].lessonCompleted &&
                               completedMap[chapter.module.id].exerciseCompleted) && (
                               <span className="text-green-400 font-bold">✔️</span>
                           )}
