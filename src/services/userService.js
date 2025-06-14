@@ -1,5 +1,6 @@
 import { auth, db } from "./firebase";
-import { doc, getDoc, updateDoc, increment, arrayUnion} from "firebase/firestore";
+import { doc, getDoc, updateDoc, increment, arrayUnion } from "firebase/firestore";
+import { checkCourseAchievements } from "./achievementService";
 
 export async function getUserProfile() {
   const user = auth.currentUser;
@@ -116,7 +117,7 @@ export async function isCourseCompleted(userId, courseId) {
 export async function completeCourse(userId, courseId, expReward = 50) {
   try {
     if (await isCourseCompleted(userId, courseId)) {
-      return { alreadyCompleted: true };
+      return { alreadyCompleted: true, newAchievements: [] };
     }
 
     const userRef = doc(db, "users", userId);
@@ -125,12 +126,19 @@ export async function completeCourse(userId, courseId, expReward = 50) {
     });
     
     const levelResult = await addUserExp(userId, expReward);
-    
+
+    // Determine new completion count after this course
+    const completedCount = await getCompletionCount(userId);
+
+    // Check for any course-related achievements
+    const newAchievements = await checkCourseAchievements(userId, completedCount);
+
     console.log(`Course ${courseId} completed for user ${userId}`);
-    return { 
-      alreadyCompleted: false, 
+    return {
+      alreadyCompleted: false,
       expGained: expReward,
-      levelResult 
+      levelResult,
+      newAchievements,
     };
   } catch (error) {
     console.error("Error completing course:", error);
