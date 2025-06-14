@@ -1,5 +1,6 @@
 import { db } from "./firebase";
 import { doc, setDoc, getDoc, getDocs, collection } from "firebase/firestore";
+import { checkLessonAchievements } from "./achievementService";
 
 // Mark both lesson and exercise as completed
 export async function markModuleCompleted(userId, courseId, moduleId) {
@@ -12,6 +13,7 @@ export async function markModuleCompleted(userId, courseId, moduleId) {
     },
     { merge: true }
   );
+  await checkLessonAchievements(userId);
 }
 
 // Mark only the lesson portion as completed
@@ -24,6 +26,7 @@ export async function markLessonCompleted(userId, courseId, moduleId) {
     },
     { merge: true }
   );
+  await checkLessonAchievements(userId);
 }
 
 // Get all completed modules for a course for a user
