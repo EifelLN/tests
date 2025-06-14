@@ -73,7 +73,11 @@ const Profile = () => {
     setLoading(true);
     setError(""); 
     try {
-      await updateUserProfile({ ...form, dob: dob ? dob.toISOString().split("T")[0] : "" });
+      const { profileComplete, ...profileData } = form;
+      await updateUserProfile({
+        ...profileData,
+        dob: dob ? dob.toISOString().split("T")[0] : "",
+      });
       setEditMode(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 1400);

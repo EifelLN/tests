@@ -76,7 +76,6 @@ const CompleteProfile = () => {
     try {
       await updateUserProfile({
         ...updatedForm,
-        profileComplete: true,
       });
       setSaving(false);
       navigate("/dashboard");
