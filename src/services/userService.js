@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase";
 import { doc, getDoc, updateDoc, increment, arrayUnion } from "firebase/firestore";
-import { checkCourseAchievements } from "./achievementService";
+import { checkCourseAchievements, getAchievementDetails } from "./achievementService";
 import { getCourseDetail } from "./courseDetailService";
 import { getCompletedModules } from "./userProgressService";
 
@@ -38,7 +38,9 @@ export async function updateUserProfile(data) {
     const isComplete = requiredFields.every(Boolean);
     if (isComplete && !profile.profileComplete) {
       await updateDoc(docRef, { profileComplete: true });
-      await unlockAchievement(user.uid, "profile-complete");
+      const details = await getAchievementDetails("profile-complete");
+      const achId = details?.id || "profile-complete";
+      await unlockAchievement(user.uid, achId);
     }
   }
 }

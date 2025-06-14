@@ -1,24 +1,38 @@
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
 import { getUserProfile, hasAchievement, unlockAchievement } from "./userService";
 
 // Get all achievements
 export async function getAllAchievements() {
   const snapshot = await getDocs(collection(db, "achievements"));
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
+  return snapshot.docs.map(docSnap => {
+    const data = docSnap.data();
+    return {
+      firebaseId: docSnap.id,
+      id: data.id ?? docSnap.id,
+      ...data
+    };
+  });
 }
 
 
 export async function getAchievementDetails(achievementId) {
   try {
+    // Try to fetch by the stored achievement id field
+    const q = query(collection(db, "achievements"), where("id", "==", achievementId));
+    const querySnap = await getDocs(q);
+
+    if (!querySnap.empty) {
+      const docSnap = querySnap.docs[0];
+      return { firebaseId: docSnap.id, ...docSnap.data() };
+    }
+
+    // Fallback to fetching by document id
     const achievementRef = doc(db, "achievements", achievementId);
     const achievementSnap = await getDoc(achievementRef);
-    
+
     if (achievementSnap.exists()) {
-      return { id: achievementId, ...achievementSnap.data() };
+      return { firebaseId: achievementId, ...achievementSnap.data() };
     }
     return null;
   } catch (error) {
@@ -106,15 +120,17 @@ export async function checkLessonAchievements(userId) {
   
   try {
     // Check "Complete your first lesson" achievement
-    const hasFirstLesson = await hasAchievement(userId, "first-lesson");
+    const details = await getAchievementDetails("first-lesson");
+    const achId = details?.id || "first-lesson";
+    const hasFirstLesson = await hasAchievement(userId, achId);
     if (!hasFirstLesson) {
-      const result = await unlockAchievement(userId, "first-lesson");
+      const result = await unlockAchievement(userId, achId);
       if (!result.alreadyUnlocked) {
-        results.push({ 
-          id: "first-lesson", 
-          title: "First Lesson",
-          description: "Complete your first lesson!",
-          unlocked: true 
+        results.push({
+          id: achId,
+          title: details?.title || "First Lesson",
+          description: details?.description || "Complete your first lesson!",
+          unlocked: true
         });
       }
     }
@@ -132,14 +148,17 @@ export async function checkCourseAchievements(userId, completedCount) {
   try {
     // First course achievement
     if (completedCount >= 1) {
-      const hasFirstCourse = await hasAchievement(userId, "first-course");
+      const firstCourseDetails = await getAchievementDetails("first-course");
+      const firstCourseId = firstCourseDetails?.id || "first-course";
+      const hasFirstCourse = await hasAchievement(userId, firstCourseId);
       if (!hasFirstCourse) {
-        const result = await unlockAchievement(userId, "first-course");
+        const result = await unlockAchievement(userId, firstCourseId);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "first-course",
-            title: "Course Beginner", 
-            description: "Complete your first course!",
+            id: firstCourseId,
+            title: firstCourseDetails?.title || "Course Beginner",
+            description:
+              firstCourseDetails?.description || "Complete your first course!",
             unlocked: true
           });
         }
@@ -148,14 +167,16 @@ export async function checkCourseAchievements(userId, completedCount) {
 
     // Course master achievement (5 courses)
     if (completedCount >= 5) {
-      const hasCourseMaster = await hasAchievement(userId, "course-master");
+      const masterDetails = await getAchievementDetails("course-master");
+      const masterId = masterDetails?.id || "course-master";
+      const hasCourseMaster = await hasAchievement(userId, masterId);
       if (!hasCourseMaster) {
-        const result = await unlockAchievement(userId, "course-master");
+        const result = await unlockAchievement(userId, masterId);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "course-master",
-            title: "Course Master",
-            description: "Complete 5 courses!",
+            id: masterId,
+            title: masterDetails?.title || "Course Master",
+            description: masterDetails?.description || "Complete 5 courses!",
             unlocked: true
           });
         }
@@ -164,14 +185,16 @@ export async function checkCourseAchievements(userId, completedCount) {
 
     // Course legend achievement (10 courses)
     if (completedCount >= 10) {
-      const hasCourseLegend = await hasAchievement(userId, "course-legend");
+      const legendDetails = await getAchievementDetails("course-legend");
+      const legendId = legendDetails?.id || "course-legend";
+      const hasCourseLegend = await hasAchievement(userId, legendId);
       if (!hasCourseLegend) {
-        const result = await unlockAchievement(userId, "course-legend");
+        const result = await unlockAchievement(userId, legendId);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "course-legend",
-            title: "Course Legend",
-            description: "Complete 10 courses!",
+            id: legendId,
+            title: legendDetails?.title || "Course Legend",
+            description: legendDetails?.description || "Complete 10 courses!",
             unlocked: true
           });
         }
@@ -191,14 +214,18 @@ export async function checkStreakAchievements(userId, streakCount) {
   try {
     // 3-day streak
     if (streakCount >= 3) {
-      const hasStreak3 = await hasAchievement(userId, "streak-3");
+      const streak3Details = await getAchievementDetails("streak-3");
+      const streak3Id = streak3Details?.id || "streak-3";
+      const hasStreak3 = await hasAchievement(userId, streak3Id);
       if (!hasStreak3) {
-        const result = await unlockAchievement(userId, "streak-3");
+        const result = await unlockAchievement(userId, streak3Id);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "streak-3",
-            title: "On Fire!",
-            description: "Maintain a 3-day learning streak!",
+            id: streak3Id,
+            title: streak3Details?.title || "On Fire!",
+            description:
+              streak3Details?.description ||
+              "Maintain a 3-day learning streak!",
             unlocked: true
           });
         }
@@ -207,14 +234,18 @@ export async function checkStreakAchievements(userId, streakCount) {
 
     // 7-day streak
     if (streakCount >= 7) {
-      const hasStreak7 = await hasAchievement(userId, "streak-7");
+      const streak7Details = await getAchievementDetails("streak-7");
+      const streak7Id = streak7Details?.id || "streak-7";
+      const hasStreak7 = await hasAchievement(userId, streak7Id);
       if (!hasStreak7) {
-        const result = await unlockAchievement(userId, "streak-7");
+        const result = await unlockAchievement(userId, streak7Id);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "streak-7",
-            title: "Week Warrior",
-            description: "Maintain a 7-day learning streak!",
+            id: streak7Id,
+            title: streak7Details?.title || "Week Warrior",
+            description:
+              streak7Details?.description ||
+              "Maintain a 7-day learning streak!",
             unlocked: true
           });
         }
@@ -223,14 +254,18 @@ export async function checkStreakAchievements(userId, streakCount) {
 
     // 30-day streak
     if (streakCount >= 30) {
-      const hasStreak30 = await hasAchievement(userId, "streak-30");
+      const streak30Details = await getAchievementDetails("streak-30");
+      const streak30Id = streak30Details?.id || "streak-30";
+      const hasStreak30 = await hasAchievement(userId, streak30Id);
       if (!hasStreak30) {
-        const result = await unlockAchievement(userId, "streak-30");
+        const result = await unlockAchievement(userId, streak30Id);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "streak-30",
-            title: "Dedication Master",
-            description: "Maintain a 30-day learning streak!",
+            id: streak30Id,
+            title: streak30Details?.title || "Dedication Master",
+            description:
+              streak30Details?.description ||
+              "Maintain a 30-day learning streak!",
             unlocked: true
           });
         }
@@ -250,14 +285,16 @@ export async function checkLevelAchievements(userId, userLevel) {
   try {
     // Level 5 achievement
     if (userLevel >= 5) {
-      const hasLevel5 = await hasAchievement(userId, "level-5");
+      const level5Details = await getAchievementDetails("level-5");
+      const level5Id = level5Details?.id || "level-5";
+      const hasLevel5 = await hasAchievement(userId, level5Id);
       if (!hasLevel5) {
-        const result = await unlockAchievement(userId, "level-5");
+        const result = await unlockAchievement(userId, level5Id);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "level-5",
-            title: "Rising Star",
-            description: "Reach level 5!",
+            id: level5Id,
+            title: level5Details?.title || "Rising Star",
+            description: level5Details?.description || "Reach level 5!",
             unlocked: true
           });
         }
@@ -266,14 +303,16 @@ export async function checkLevelAchievements(userId, userLevel) {
 
     // Level 10 achievement
     if (userLevel >= 10) {
-      const hasLevel10 = await hasAchievement(userId, "level-10");
+      const level10Details = await getAchievementDetails("level-10");
+      const level10Id = level10Details?.id || "level-10";
+      const hasLevel10 = await hasAchievement(userId, level10Id);
       if (!hasLevel10) {
-        const result = await unlockAchievement(userId, "level-10");
+        const result = await unlockAchievement(userId, level10Id);
         if (!result.alreadyUnlocked) {
           results.push({
-            id: "level-10",
-            title: "Expert Learner",
-            description: "Reach level 10!",
+            id: level10Id,
+            title: level10Details?.title || "Expert Learner",
+            description: level10Details?.description || "Reach level 10!",
             unlocked: true
           });
         }
@@ -291,14 +330,16 @@ export async function checkProfileAchievement(userId) {
   const results = [];
   
   try {
-    const hasProfileComplete = await hasAchievement(userId, "profile-complete");
+    const details = await getAchievementDetails("profile-complete");
+    const achId = details?.id || "profile-complete";
+    const hasProfileComplete = await hasAchievement(userId, achId);
     if (!hasProfileComplete) {
-      const result = await unlockAchievement(userId, "profile-complete");
+      const result = await unlockAchievement(userId, achId);
       if (!result.alreadyUnlocked) {
         results.push({
-          id: "profile-complete",
-          title: "Known Legend",
-          description: "Complete Profile",
+          id: achId,
+          title: details?.title || "Known Legend",
+          description: details?.description || "Complete Profile",
           unlocked: true
         });
       }
