@@ -17,8 +17,9 @@ const Profile = () => {
   const [saved, setSaved] = useState(false);
   const [dob, setDob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");       
+  const [error, setError] = useState("");
   const [completedCourses, setCompletedCourses] = useState(0);
+  const [achievementCount, setAchievementCount] = useState(0);
 
   // Fetch user profile and course completion
   useEffect(() => {
@@ -31,6 +32,7 @@ const Profile = () => {
         setForm(profile);
         setDob(profile && profile.dob ? new Date(profile.dob) : null);
         setCompletedCourses(profile?.completedCourses?.length || 0);
+        setAchievementCount(Object.keys(profile?.achievements || {}).length);
 
         if (authUser && (!profile?.completedCourses || profile.completedCourses.length === 0)) {
           const allCourses = await getCourses();
@@ -80,6 +82,7 @@ const Profile = () => {
       setUser(updatedProfile);
       setForm(updatedProfile);
       setDob(updatedProfile && updatedProfile.dob ? new Date(updatedProfile.dob) : null);
+      setAchievementCount(Object.keys(updatedProfile?.achievements || {}).length);
     } catch (err) {
       console.error(err);
       setError("Failed to update profile.");
@@ -249,7 +252,11 @@ const Profile = () => {
           {/* RIGHT: User Info Card */}
           <div className="bg-[#362e7c] rounded-2xl px-10 py-8 w-[320px] max-w-full shadow-xl flex flex-col justify-center items-center">
             <ProfileHeader name={name} level={level} />
-            <ProfileStats longestStreak={streak} completedCourses={completedCourses} />
+            <ProfileStats
+              longestStreak={streak}
+              completedCourses={completedCourses}
+              achievementCount={achievementCount}
+            />
           </div>
         </div>
       </div>
